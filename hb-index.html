@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Estás Invitado! 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700;900&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #E6B422;
+    --gold-light: #FFD86B;
+    --pink: #FFD86B;
+    --pink-deep: #E6B422;
+    --cream: #FFF6D9;
+    --dark: #071A4A;
+    --purple: #0B2A66;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--dark);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === CONFETTI CANVAS === */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === HERO === */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(230,180,34,0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(11,42,102,0.9) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(11,42,102,0.85) 0%, transparent 70%),
+      var(--dark);
+    z-index: 1;
+  }
+
+  .sparkle-border {
+    position: absolute;
+    top: 20px; left: 20px; right: 20px; bottom: 20px;
+    border: 2px solid rgba(242,165,22,0.3);
+    border-radius: 30px;
+    pointer-events: none;
+    animation: borderGlow 4s ease-in-out infinite;
+    overflow: visible;
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { border-color: rgba(242,165,22,0.15); box-shadow: inset 0 0 30px rgba(242,165,22,0.02), 0 0 15px rgba(242,165,22,0.05); }
+    50% { border-color: rgba(242,165,22,0.6); box-shadow: inset 0 0 40px rgba(242,165,22,0.08), 0 0 40px rgba(242,165,22,0.2), 0 0 80px rgba(242,165,22,0.08); }
+  }
+
+  /* Pac-Man character */
+  .pacman {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(255,255,0,0.7));
+  }
+
+  .pacman-body {
+    width: 22px;
+    height: 22px;
+    background: #FFE000;
+    border-radius: 50%;
+    position: relative;
+    animation: chomp 0.35s ease-in-out infinite alternate;
+  }
+
+  @keyframes chomp {
+    0%   { clip-path: polygon(100% 50%, 100% 0%, 0% 0%, 0% 100%, 100% 100%); }
+    100% { clip-path: polygon(100% 50%, 65% 10%, 0% 0%, 0% 100%, 65% 90%); }
+  }
+
+  /* Ghosts */
+  .ghost {
+    position: absolute;
+    font-size: 20px;
+    z-index: 10;
+    pointer-events: none;
+    animation: ghostWobble 0.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes ghostWobble {
+    0%   { transform: translateY(-1px); }
+    100% { transform: translateY(1px); }
+  }
+
+  .ghost-red    { filter: drop-shadow(0 0 6px rgba(255,0,0,0.5)); }
+  .ghost-pink   { filter: drop-shadow(0 0 6px rgba(255,184,255,0.5)); }
+  .ghost-cyan   { filter: drop-shadow(0 0 6px rgba(0,255,255,0.5)); }
+  .ghost-orange { filter: drop-shadow(0 0 6px rgba(255,184,82,0.5)); }
+
+  /* Pac-dots along the border */
+  .pac-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #FFD166;
+    border-radius: 50%;
+    opacity: 0.5;
+    box-shadow: 0 0 4px rgba(255,209,102,0.4);
+    pointer-events: none;
+  }
+
+  /* Extra sparkle stars on corners */
+  .border-star {
+    position: absolute;
+    color: var(--gold);
+    font-size: 1rem;
+    animation: sparkle 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.7); text-shadow: 0 0 4px rgba(242,165,22,0.2); }
+    50% { opacity: 1; transform: scale(1.4); text-shadow: 0 0 12px rgba(242,165,22,0.8); }
+  }
+
+  .invite-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--dark);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 8px 24px;
+    border-radius: 30px;
+    margin-bottom: 2rem;
+    animation: fadeDown 1s ease-out;
+  }
+
+  .main-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    animation: fadeUp 1s ease-out 0.2s both;
+  }
+
+  /* === BIG "30" BACKDROP TITLE === */
+  .title-block {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    animation: fadeUp 1s ease-out 0.2s both;
+  }
+
+  .big-30 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(11rem, 42vw, 22rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.28;
+    user-select: none;
+  }
+
+  .mis-script {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(3.5rem, 14vw, 7.5rem);
+    line-height: 1;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 30px rgba(230,180,34,0.25);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .main-title .line1 {
+    display: block;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .main-title .line2 {
+    display: block;
+    font-size: 0.5em;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    font-weight: 300;
+    color: rgba(255,248,240,0.7);
+    margin-bottom: 3rem;
+    animation: fadeUp 1s ease-out 0.4s both;
+  }
+
+  /* === COUNTDOWN === */
+  .countdown-section {
+    animation: fadeUp 1s ease-out 0.6s both;
+    margin-bottom: 3rem;
+  }
+
+  .countdown-label {
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 1.2rem;
+  }
+
+  .countdown {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .countdown-item {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(242,165,22,0.2);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    min-width: 90px;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+
+  .countdown-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+  }
+
+  .countdown-number {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    display: block;
+  }
+
+  .countdown-unit {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,248,240,0.5);
+    margin-top: 4px;
+  }
+
+  /* === INFO CARDS === */
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    animation: fadeUp 1s ease-out 0.8s both;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .info-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1.2rem 1.8rem;
+    width: 100%;
+    transition: all 0.3s;
+  }
+
+  .info-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--gold);
+    transform: translateX(4px);
+  }
+
+  .info-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    text-align: left;
+  }
+
+  .info-text .label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,248,240,0.4);
+  }
+
+  .info-text .value {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--cream);
+  }
+
+  /* === LOCATION LINK === */
+  .info-card-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    border: 1px solid rgba(242,165,22,0.25);
+  }
+
+  .info-card-link:hover {
+    background: rgba(242,165,22,0.12);
+    border-color: var(--gold);
+    transform: translateX(4px);
+  }
+
+  .info-card-link .value {
+    color: var(--gold-light);
+  }
+
+  /* === WHATSAPP BUTTON === */
+  .whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2rem;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: white;
+    text-decoration: none;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: fadeUp 1s ease-out 1s both;
+    box-shadow: 0 4px 25px rgba(37,211,102,0.3);
+  }
+
+  .whatsapp-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 35px rgba(37,211,102,0.5);
+  }
+
+  .whatsapp-btn svg {
+    width: 22px; height: 22px;
+    fill: currentColor;
+  }
+
+  /* === FLOATING EMOJIS === */
+  .floating-emoji {
+    position: fixed;
+    font-size: 1.5rem;
+    animation: floatUp linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === FOOTER === */
+  .footer-msg {
+    margin-top: 2.5rem;
+    font-size: 0.85rem;
+    color: rgba(255,248,240,0.35);
+    animation: fadeUp 1s ease-out 1.2s both;
+    font-style: italic;
+  }
+
+  /* === PASSED EVENT === */
+  .countdown-passed .countdown-number {
+    color: var(--pink);
+  }
+
+  .passed-msg {
+    color: var(--pink);
+    font-weight: 600;
+    font-size: 1.2rem;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<section class="hero">
+  <div class="sparkle-border">
+    <div class="pacman" id="pacman"><div class="pacman-body"></div></div>
+    <div class="ghost ghost-red" id="ghost1">👻</div>
+    <div class="ghost ghost-cyan" id="ghost2">👻</div>
+    <div class="ghost ghost-pink" id="ghost3">👻</div>
+    <span class="border-star" style="top:-8px;left:20%;">✦</span>
+    <span class="border-star" style="top:-8px;left:50%;animation-delay:0.5s;">✧</span>
+    <span class="border-star" style="top:-8px;left:80%;animation-delay:1.2s;">✦</span>
+    <span class="border-star" style="bottom:-8px;left:15%;animation-delay:0.8s;">✶</span>
+    <span class="border-star" style="bottom:-8px;left:50%;animation-delay:1.5s;">✦</span>
+    <span class="border-star" style="bottom:-8px;left:85%;animation-delay:0.3s;">✧</span>
+    <span class="border-star" style="top:20%;left:-8px;animation-delay:1s;">✦</span>
+    <span class="border-star" style="top:50%;left:-8px;animation-delay:1.8s;">✶</span>
+    <span class="border-star" style="top:80%;left:-8px;animation-delay:0.6s;">✧</span>
+    <span class="border-star" style="top:20%;right:-8px;animation-delay:1.3s;">✧</span>
+    <span class="border-star" style="top:50%;right:-8px;animation-delay:0.4s;">✦</span>
+    <span class="border-star" style="top:80%;right:-8px;animation-delay:1.7s;">✶</span>
+  </div>
+
+  <div class="invite-tag">✨ Estás invitado ✨</div>
+
+  <div class="title-block">
+    <span class="big-30">30</span>
+    <span class="mis-script">Mis Treinta</span>
+  </div>
+
+  <p class="subtitle">Hoy cierro una etapa y comienzo una nueva: <strong>¡llegan mis 30!</strong><br>Quiero celebrarlo junto a las personas que más quiero, y por eso tu presencia no puede faltar. Acompáñame a vivir una noche llena de alegría, música y momentos que se volverán recuerdos inolvidables.</p>
+
+  <!-- COUNTDOWN -->
+  <div class="countdown-section">
+    <div class="countdown-label">Cuenta regresiva</div>
+    <div class="countdown" id="countdown">
+      <div class="countdown-item">
+        <span class="countdown-number" id="days">00</span>
+        <div class="countdown-unit">Días</div>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number" id="hours">00</span>
+        <div class="countdown-unit">Horas</div>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number" id="minutes">00</span>
+        <div class="countdown-unit">Minutos</div>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number" id="seconds">00</span>
+        <div class="countdown-unit">Segundos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-section">
+    <div class="info-card">
+      <span class="info-icon">📅</span>
+      <div class="info-text">
+        <div class="label">Fecha</div>
+        <div class="value">13 de Junio, 2026</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">🕕</span>
+      <div class="info-text">
+        <div class="label">Hora</div>
+        <div class="value">9:00 PM</div>
+      </div>
+    </div>
+    <a href="https://maps.app.goo.gl/VnPfwjsEULoRnASc7" target="_blank" class="info-card info-card-link">
+      <span class="info-icon">📍</span>
+      <div class="info-text">
+        <div class="label">Ubicación</div>
+        <div class="value">Ver dirección en el mapa →</div>
+      </div>
+    </a>
+  </div>
+
+  <a href="https://wa.me/51902914322?text=%C2%A1Hola!%20Confirmo%20mi%20asistencia%20a%20la%20fiesta%20de%20cumplea%C3%B1os%20%F0%9F%8E%89" target="_blank" class="whatsapp-btn">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Confirmar asistencia
+  </a>
+
+  <p class="footer-msg">¡Te esperamos! No faltes 🎉</p>
+</section>
+
+<script>
+  // === COUNTDOWN ===
+  const targetDate = new Date('2026-06-13T21:00:00-05:00'); // 9PM Lima time
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      document.getElementById('days').textContent = '🎉';
+      document.getElementById('hours').textContent = '🎂';
+      document.getElementById('minutes').textContent = '🥳';
+      document.getElementById('seconds').textContent = '🎈';
+      document.querySelector('.countdown-label').innerHTML = '<span class="passed-msg">¡La fiesta es AHORA!</span>';
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('days').textContent = String(days).padStart(2, '0');
+    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // === FLOATING EMOJIS ===
+  const emojis = ['🎈', '🎂', '🎁', '🎉', '🥳', '🍰', '✨', '🎊', '💫', '🪅'];
+
+  function createFloatingEmoji() {
+    const el = document.createElement('div');
+    el.classList.add('floating-emoji');
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animationDuration = (8 + Math.random() * 12) + 's';
+    el.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 20000);
+  }
+
+  for (let i = 0; i < 6; i++) {
+    setTimeout(createFloatingEmoji, i * 800);
+  }
+  setInterval(createFloatingEmoji, 2500);
+
+  // === CONFETTI CANVAS ===
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const colors = ['#E6B422', '#FFD86B', '#FFE8A3', '#C99A1E', '#FFF6D9', '#FFCB45'];
+
+  class Particle {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * canvas.height;
+    }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = -10;
+      this.size = Math.random() * 5 + 2;
+      this.speedY = Math.random() * 1 + 0.3;
+      this.speedX = Math.random() * 1 - 0.5;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.opacity = Math.random() * 0.5 + 0.2;
+      this.rotation = Math.random() * 360;
+      this.rotSpeed = Math.random() * 4 - 2;
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      this.rotation += this.rotSpeed;
+      if (this.y > canvas.height + 10) this.reset();
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate((this.rotation * Math.PI) / 180);
+      ctx.globalAlpha = this.opacity;
+      ctx.fillStyle = this.color;
+      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 0.6);
+      ctx.restore();
+    }
+  }
+
+  for (let i = 0; i < 60; i++) {
+    particles.push(new Particle());
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animateConfetti);
+  }
+  animateConfetti();
+
+  // === MAGIC WAND SPARKLES (mouse + touch) ===
+  const sparkleChars = ['✦', '✧', '⭑', '✶', '✷', '·', '★', '☆'];
+  const sparkleColors = ['#FFD86B', '#E6B422', '#FFE8A3', '#FFF6D9', '#C99A1E', '#FFCB45', '#fff'];
+  let lastSparkle = 0;
+
+  function createSparkles(x, y) {
+    const now = Date.now();
+    if (now - lastSparkle < 30) return;
+    lastSparkle = now;
+
+    for (let i = 0; i < 6; i++) {
+      const spark = document.createElement('div');
+      spark.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+      const offsetX = (Math.random() * 40 - 20);
+      const offsetY = (Math.random() * 40 - 20);
+      const fallX = (Math.random() > 0.5 ? 1 : -1) * (15 + Math.random() * 35);
+      const fallY = 30 + Math.random() * 50;
+      const rot = Math.random() * 360;
+      const duration = 2.5 + Math.random() * 1;
+      spark.style.cssText = `
+        position: fixed;
+        left: ${x + offsetX}px;
+        top: ${y + offsetY}px;
+        pointer-events: none;
+        z-index: 9999;
+        font-size: ${8 + Math.random() * 14}px;
+        color: ${sparkleColors[Math.floor(Math.random() * sparkleColors.length)]};
+        text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+        --fall-x: ${fallX}px;
+        --fall-y: ${fallY}px;
+        --rot: ${rot}deg;
+        animation: cursorSparkle ${duration}s ease-out forwards;
+      `;
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 3500);
+    }
+  }
+
+  // Mouse (desktop)
+  document.addEventListener('mousemove', (e) => {
+    createSparkles(e.clientX, e.clientY);
+  });
+
+  // Touch (mobile) - sparkles follow finger
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    createSparkles(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  // Touch tap - burst of sparkles
+  document.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    lastSparkle = 0; // force sparkle
+    for (let j = 0; j < 3; j++) {
+      setTimeout(() => {
+        lastSparkle = 0;
+        createSparkles(touch.clientX, touch.clientY);
+      }, j * 50);
+    }
+  }, { passive: true });
+
+  // Sparkle keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes cursorSparkle {
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--fall-x), var(--fall-y)) scale(0) rotate(var(--rot)); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // === PAC-MAN BORDER ANIMATION ===
+  const border = document.querySelector('.sparkle-border');
+  const pacman = document.getElementById('pacman');
+  const ghosts = [
+    document.getElementById('ghost1'),
+    document.getElementById('ghost2'),
+    document.getElementById('ghost3')
+  ];
+
+  function getPerimeterPoint(progress, rect) {
+    // progress: 0 to 1, travels clockwise around the border
+    const w = rect.width;
+    const h = rect.height;
+    const perimeter = 2 * (w + h);
+    const dist = progress * perimeter;
+
+    if (dist <= w) {
+      // Top edge: left to right
+      return { x: dist, y: -12, rot: 0 };
+    } else if (dist <= w + h) {
+      // Right edge: top to bottom
+      return { x: w + 4, y: dist - w, rot: 90 };
+    } else if (dist <= 2 * w + h) {
+      // Bottom edge: right to left
+      return { x: w - (dist - w - h), y: h + 4, rot: 180 };
+    } else {
+      // Left edge: bottom to top
+      return { x: -14, y: h - (dist - 2 * w - h), rot: 270 };
+    }
+  }
+
+  let pacProgress = 0;
+  const ghostOffsets = [0.18, 0.12, 0.06]; // ghosts AHEAD of pac-man
+  const speed = 0.0008;
+
+  function animatePacman() {
+    const localRect = { width: border.offsetWidth, height: border.offsetHeight };
+
+    pacProgress = (pacProgress + speed) % 1;
+
+    // Pac-Man position (chasing behind)
+    const pacPos = getPerimeterPoint(pacProgress, localRect);
+    pacman.style.left = pacPos.x + 'px';
+    pacman.style.top = pacPos.y + 'px';
+    pacman.querySelector('.pacman-body').style.transform = `rotate(${pacPos.rot}deg)`;
+
+    // Ghosts run AHEAD of Pac-Man
+    ghosts.forEach((ghost, i) => {
+      let gProgress = (pacProgress + ghostOffsets[i]) % 1;
+      const gPos = getPerimeterPoint(gProgress, localRect);
+      ghost.style.left = gPos.x + 'px';
+      ghost.style.top = gPos.y + 'px';
+    });
+
+    requestAnimationFrame(animatePacman);
+  }
+
+  // Add pac-dots along the border
+  const dotCount = 40;
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement('div');
+    dot.classList.add('pac-dot');
+    const localRect = { width: border.offsetWidth, height: border.offsetHeight };
+    const pos = getPerimeterPoint(i / dotCount, localRect);
+    dot.style.left = (pos.x + 8) + 'px';
+    dot.style.top = (pos.y + 8) + 'px';
+    border.appendChild(dot);
+  }
+
+  animatePacman();
+
+  // === PAC-MAN AUDIO ===
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let audioPlaying = false;
+  let audioInterval = null;
+
+  function playPacSound() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    const now = audioCtx.currentTime;
+    // Classic waka-waka
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.linearRampToValueAtTime(200, now + 0.08);
+    osc.frequency.linearRampToValueAtTime(300, now + 0.12);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.15);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  function toggleAudio() {
+    const btn = document.getElementById('audio-btn');
+    if (audioPlaying) {
+      clearInterval(audioInterval);
+      audioInterval = null;
+      audioPlaying = false;
+      btn.textContent = '🔇';
+      btn.title = 'Activar sonido Pac-Man';
+    } else {
+      audioCtx.resume();
+      audioInterval = setInterval(playPacSound, 300);
+      audioPlaying = true;
+      btn.textContent = '🔊';
+      btn.title = 'Silenciar Pac-Man';
+    }
+  }
+</script>
+
+<!-- Audio toggle button -->
+<button id="audio-btn" onclick="toggleAudio()" title="Activar sonido Pac-Man" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(242,165,22,0.3);
+  background: rgba(26,26,46,0.85);
+  backdrop-filter: blur(10px);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+" onmouseover="this.style.borderColor='rgba(242,165,22,0.8)';this.style.transform='scale(1.1)'" onmouseout="this.style.borderColor='rgba(242,165,22,0.3)';this.style.transform='scale(1)'">🔇</button>
+
+</body>
+</html>
